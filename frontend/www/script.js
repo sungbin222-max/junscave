@@ -1149,13 +1149,23 @@ function nextFloor() {
 function generateMonstersForFloor(floorNumber) {
     let generatedMonsters = [];
     const isBossFloor = floorNumber % 10 === 0;
+    const isInfiniteMode = floorNumber > 300;
 
     // 메인 보스 몬스터 등장 로직 (20, 40, 60...)
     if (floorNumber % 20 === 0) {
         playBGM('boss-theme');
         const bossIndex = (floorNumber / 20) - 1;
-        const bossTemplate = bossList[Math.min(bossIndex, bossList.length - 1)];
-        const boss = createMonster(bossTemplate, 1);
+        const bossTemplate = bossList[isInfiniteMode ? bossIndex % bossList.length : Math.min(bossIndex, bossList.length - 1)];
+
+        // 300층까지는 하드코딩된 스탯 사용, 이후부터는 배율 적용
+        let multiplier = 1;
+        if (isInfiniteMode) {
+            const baseMultiplier = 1 + (300 - 100) * 0.0335; // 약 7.7
+            // 보스는 일반 몬스터보다 강해야 하므로, 배율을 더 높게 설정
+            multiplier = (baseMultiplier + (floorNumber - 300) * 0.15) * 2.0;
+        }
+
+        const boss = createMonster(bossTemplate, multiplier);
         generatedMonsters.push(boss);
         log(`============ 지하 ${floorNumber}층: 보스전! ============`, 'log-system', { fontSize: '28px', color: '#ef4444', textShadow: '0 0 10px #ef4444' });
         playSound('boss-appear');
@@ -1163,8 +1173,15 @@ function generateMonstersForFloor(floorNumber) {
     } else if (floorNumber % 20 === 10) { // 중간 보스 몬스터 등장 로직 (10, 30, 50...)
         playBGM('boss-theme');
         const bossIndex = Math.floor(floorNumber / 20);
-        const bossTemplate = midBossList[Math.min(bossIndex, midBossList.length - 1)];
-        const boss = createMonster(bossTemplate, 1);
+        const bossTemplate = midBossList[isInfiniteMode ? bossIndex % midBossList.length : Math.min(bossIndex, midBossList.length - 1)];
+
+        let multiplier = 1;
+        if (isInfiniteMode) {
+            const baseMultiplier = 1 + (300 - 100) * 0.0335; // 약 7.7
+            multiplier = baseMultiplier + (floorNumber - 300) * 0.15;
+        }
+
+        const boss = createMonster(bossTemplate, multiplier);
         generatedMonsters.push(boss);
         playSound('boss-appear');
         log(`============ 지하 ${floorNumber}층: 보스전! ============`, 'log-system', { fontSize: '28px', color: '#ef4444', textShadow: '0 0 10px #ef4444' });
@@ -1173,20 +1190,33 @@ function generateMonstersForFloor(floorNumber) {
         // 일반 층에서는 메인 테마 재생
         playBGM('main-theme');
 
-        // 일반 몬스터 생성 로직
-
         // 100층부터 일반 몬스터 스펙업 배율 계산
-        const difficultyMultiplier = (floorNumber >= 100) ? (1 + (floorNumber - 100) * 0.0335) : 1;
+        let difficultyMultiplier;
+        if (isInfiniteMode) {
+            const baseMultiplier = 1 + (300 - 100) * 0.0335; // 약 7.7
+            difficultyMultiplier = baseMultiplier + (floorNumber - 300) * 0.08; // 더 가파른 성장 곡선
+        } else if (floorNumber >= 100) {
+            difficultyMultiplier = (1 + (floorNumber - 100) * 0.0335);
+        } else {
+            difficultyMultiplier = 1;
+        }
 
         // --- 추가 몬스터 생성 로직 ---
         // 51층부터 30층마다 1마리씩, 순차적으로 강해지는 몬스터 추가
         if (floorNumber > 50) {
-            const progressiveExtraMobsCount = Math.floor((floorNumber - 51) / 30) + 1;
+            let progressiveExtraMobsCount = Math.floor((floorNumber - 51) / 30) + 1;
+            // 무한 모드에서는 50층마다 몹이 추가로 늘어남 (메인몹 포함 최대 5마리)
+            if (isInfiniteMode) {
+                progressiveExtraMobsCount += Math.floor((floorNumber - 301) / 50);
+            }
+            progressiveExtraMobsCount = Math.min(progressiveExtraMobsCount, 4);
+
             for (let i = 0; i < progressiveExtraMobsCount; i++) {
                 const startFloorForSlot = 51 + i * 30;
                 const monsterIndex = (floorNumber - startFloorForSlot) % monsterList.length;
                 const mobTemplate = monsterList[monsterIndex];
-                const mob = createMonster(mobTemplate, difficultyMultiplier);
+                // 추가 몹은 메인 몹보다 약간 약하게 설정
+                const mob = createMonster(mobTemplate, difficultyMultiplier * 0.85);
                 generatedMonsters.push(mob);
             }
         } else if (floorNumber >= 17) { // 17~50층 사이의 기존 추가 몬스터 로직
