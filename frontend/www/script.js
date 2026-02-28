@@ -1444,6 +1444,10 @@ function recalculatePlayerStats() {
         player.magicDamageBonus = player.magicDamageBonus * 1.6;
     }
 
+    // 치명타 및 흑섬 확률 최대치(50%) 적용
+    player.critChance = Math.min(player.critChance, 50);
+    player.blackFlashChance = Math.min(player.blackFlashChance, 0.5);
+
     // 회피율 최대치(60%) 적용
     player.evasionChance = Math.min(player.evasionChance, 60);
 

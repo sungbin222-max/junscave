@@ -433,19 +433,19 @@ function renderStatUpModal() {
     const currentAtk = player.baseAtk + ((player.str + lootBonuses.str) * 2) + weaponBonus;
     const currentMaxHp = player.baseMaxHp + ((player.vit + lootBonuses.vit) * 5) + armorBonus;
     const currentMaxMp = player.baseMaxMp + ((player.mnd + lootBonuses.mnd) * 5);
-    const currentCritChance = 11 + ((player.luk + lootBonuses.luk) * 0.7);
+    const currentCritChance = Math.min(50, 11 + ((player.luk + lootBonuses.luk) * 0.7));
     const currentEvasionChance = Math.min(50, 4 + ((player.agi + lootBonuses.agi) * 3));
     const currentGoldBonus = 1 + ((player.int + lootBonuses.int) * 0.02) + lootGoldBonus;
-    const currentBlackFlashChance = 0.008 + ((player.fcs + lootBonuses.fcs) * 0.004);
+    const currentBlackFlashChance = Math.min(0.5, 0.008 + ((player.fcs + lootBonuses.fcs) * 0.004));
 
     // "임시" 값 (스탯 분배 후 + 전리품 효과 포함)
     const tempAtk = player.baseAtk + ((tempStats.str + lootBonuses.str) * 2) + weaponBonus;
     const tempMaxHp = player.baseMaxHp + ((tempStats.vit + lootBonuses.vit) * 5) + armorBonus;
     const tempMaxMp = player.baseMaxMp + ((tempStats.mnd + lootBonuses.mnd) * 5);
-    const tempCritChance = 11 + ((tempStats.luk + lootBonuses.luk) * 0.7);
+    const tempCritChance = Math.min(50, 11 + ((tempStats.luk + lootBonuses.luk) * 0.7));
     const tempEvasionChance = Math.min(50, 4 + ((tempStats.agi + lootBonuses.agi) * 3));
     const tempGoldBonus = 1 + ((tempStats.int + lootBonuses.int) * 0.02) + lootGoldBonus;
-    const tempBlackFlashChance = 0.008 + ((tempStats.fcs + lootBonuses.fcs) * 0.004);
+    const tempBlackFlashChance = Math.min(0.5, 0.008 + ((tempStats.fcs + lootBonuses.fcs) * 0.004));
 
     // --- 스킬 추가 피해 미리보기 계산 ---
     const currentMagicDamageBonus = ((player.mag + lootBonuses.mag) * 2.0);
@@ -468,14 +468,16 @@ function renderStatUpModal() {
         `;
     }
 
-    // --- 회피율 최대치 도달 시 강조 표시 ---
+    // --- 최대치 도달 시 강조 표시 ---
     const evasionNextValueStyle = tempEvasionChance >= 50 ? 'color: #fbbf24; font-weight: bold;' : '';
+    const critNextValueStyle = tempCritChance >= 50 ? 'color: #fbbf24; font-weight: bold;' : '';
+    const blackFlashNextValueStyle = tempBlackFlashChance >= 0.5 ? 'color: #fbbf24; font-weight: bold;' : '';
 
     currentValuesEl.innerHTML = `
         공격력: ${currentAtk} → ${tempAtk} | 최대체력: ${currentMaxHp} → ${tempMaxHp}<br>
         최대MP: ${currentMaxMp} → ${tempMaxMp} | 회피: ${currentEvasionChance.toFixed(1)}% → <span style="${evasionNextValueStyle}">${tempEvasionChance.toFixed(1)}%</span> (최대 50%)<br>
-        치명타: ${currentCritChance.toFixed(1)}% → ${tempCritChance.toFixed(1)}% | 골드 보너스: ${((currentGoldBonus - 1) * 100).toFixed(0)}% → ${((tempGoldBonus - 1) * 100).toFixed(0)}%<br>
-        흑섬 확률: ${(currentBlackFlashChance * 100).toFixed(1)}% → ${(tempBlackFlashChance * 100).toFixed(1)}% | 스킬 추가 피해: ${currentMagicDamageBonus.toFixed(1)} → <span style="color: #f87171; font-weight: bold;">${tempMagicDamageBonus.toFixed(1)}</span>
+        치명타: ${currentCritChance.toFixed(1)}% → <span style="${critNextValueStyle}">${tempCritChance.toFixed(1)}%</span> (최대 50%) | 골드 보너스: ${((currentGoldBonus - 1) * 100).toFixed(0)}% → ${((tempGoldBonus - 1) * 100).toFixed(0)}%<br>
+        흑섬 확률: ${(currentBlackFlashChance * 100).toFixed(1)}% → <span style="${blackFlashNextValueStyle}">${(tempBlackFlashChance * 100).toFixed(1)}%</span> (최대 50%) | 스킬 추가 피해: ${currentMagicDamageBonus.toFixed(1)} → <span style="color: #f87171; font-weight: bold;">${tempMagicDamageBonus.toFixed(1)}</span>
         ${specialEffectsHtml}
     `;
 }
