@@ -124,6 +124,12 @@ const armorList = [
     { name: '천상의 수호자 갑옷', emoji: '😇', maxHpBonus: 450, cost: 26500 },
     { name: '심연의 군주 갑옷', emoji: '😈', maxHpBonus: 580, cost: 50000 },
     { name: '창조주의 성의', emoji: '🌌', maxHpBonus: 740, cost: 88000 },
+    { name: '절대자의 갑주', emoji: '👤', maxHpBonus: 950, cost: 150000 },
+    { name: '만물의 근원 갑옷', emoji: '🌟', maxHpBonus: 1250, cost: 260000 },
+    { name: '무한의 갑옷', emoji: '♾️', maxHpBonus: 1600, cost: 420000 },
+    { name: '초월의 갑옷', emoji: '✨', maxHpBonus: 2050, cost: 650000 },
+    { name: '신화의 갑옷', emoji: '🦄', maxHpBonus: 2600, cost: 970000 },
+    { name: '아스가르드의 갑옷', emoji: '🌌', maxHpBonus: 3250, cost: 1420000 },
 ];
 
 //* 상점에서 판매하는 HP 회복 물약 목록
@@ -180,6 +186,12 @@ const weaponList = [
     { name: '신검 엑스칼리버', emoji: '✨', atkBonus: 115, cost: 33000 },
     { name: '마검 롱기누스', emoji: '🔱', atkBonus: 150, cost: 57000 },
     { name: '창조주의 검', emoji: '☄️', atkBonus: 200, cost: 105000 },
+    { name: '절대자의 검', emoji: '👤', atkBonus: 250, cost: 180000 },
+    { name: '만물의 근원 검', emoji: '🌟', atkBonus: 320, cost: 300000 },
+    { name: '무한의 검', emoji: '♾️', atkBonus: 400, cost: 500000 },
+    { name: '초월의 검', emoji: '✨', atkBonus: 500, cost: 780000 },
+    { name: '신화의 검', emoji: '🦄', atkBonus: 620, cost: 1180000 },
+    { name: '궁니르', emoji: '⚡', atkBonus: 770, cost: 1730000 },
 ];
 
 //* 상점에서 판매하는 치명타 확률 증가(버프) 물약 목록
