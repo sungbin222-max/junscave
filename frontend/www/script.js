@@ -2204,7 +2204,8 @@ async function init() {
     if (lastRecord) {
         try {
             const record = JSON.parse(lastRecord);
-            alert(`[오프라인 방치 기록]\n\n마지막 전투에서는 ${record.floor}층에서 패배했습니다.\n현재 골드: ${record.coins}G\n기록 일시: ${record.time}\n\n도전은 1층부터 다시 이어집니다!`);
+            const restartFloor = Math.max(1, Math.floor((record.floor - 1) / 10) * 10 + 1);
+            alert(`[오프라인 방치 기록]\n\n마지막 전투에서는 ${record.floor}층에서 패배했습니다.\n현재 골드: ${record.coins}G\n기록 일시: ${record.time}\n\n도전은 ${restartFloor}층부터 다시 이어집니다!`);
             localStorage.removeItem('lastIdleRecord');
         } catch (e) { }
     }
