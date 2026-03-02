@@ -55,6 +55,19 @@
 html { height: 100%; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-border-light); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--c-text-muted); }
+
+/* Selection */
+::selection { background: var(--c-primary-dim); color: var(--c-text); }
+
+/* Focus visible */
+:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+
 body {
     font-family: var(--font);
     background-color: var(--c-bg);
@@ -292,9 +305,22 @@ body {
     align-items: center;
     padding: 16px 8px;
     flex: 1;
-    gap: 40px;
+    gap: 24px;
     position: relative;
     min-height: 0;
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+}
+
+.vs-divider {
+    font-size: 24px;
+    color: var(--c-text-muted);
+    opacity: 0.4;
+    text-shadow: 0 0 12px var(--c-primary-glow);
+    flex-shrink: 0;
+    user-select: none;
+    pointer-events: none;
 }
 
 #monster-area {
@@ -320,7 +346,15 @@ body {
     color: var(--c-red);
     display: none;
 }
-.monster-wrapper.targeted .target-indicator { display: block; }
+@keyframes bounce-indicator {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+.monster-wrapper.targeted .target-indicator {
+    display: block;
+    animation: bounce-indicator 0.8s ease-in-out infinite;
+}
 .monster-wrapper.dead .character { opacity: 0.35; filter: grayscale(1); }
 
 /* ==================== 5. Character & UI Elements ==================== */
@@ -368,6 +402,27 @@ body {
     font-weight: 500;
 }
 
+/* Player character effects */
+@keyframes idle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+#player-character {
+    animation: idle-float 3s ease-in-out infinite;
+}
+
+#player-character .emoji {
+    filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.3));
+}
+
+.character .name {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    display: inline-block;
+}
+
 /* ==================== 6. Animations ==================== */
 @keyframes shake {
     0% { transform: translateX(0); }
@@ -398,8 +453,9 @@ body {
 }
 
 @keyframes float-up-and-fade {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(-60px); opacity: 0; }
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    15% { transform: translateY(-10px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(-60px) scale(0.9); opacity: 0; }
 }
 
 .floating-text.damage { color: #fff; }
@@ -421,6 +477,16 @@ body {
     display: none;
 }
 
+@keyframes stun-spin {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+}
+
+.stun-indicator.visible {
+    display: block;
+    animation: stun-spin 1.5s linear infinite;
+}
+
 /* ==================== 7. Bottom UI (Log, Bars, Controls) ==================== */
 .log-box {
     background: var(--c-surface-dark);
@@ -431,6 +497,7 @@ body {
     font-size: 13px;
     line-height: 1.6;
     border: 1px solid var(--c-border);
+    box-shadow: inset 3px 0 0 var(--c-primary-dim);
 }
 .log-msg { margin-bottom: 3px; }
 .log-player { color: var(--c-blue); }
@@ -1192,6 +1259,149 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 }
 #game-over-modal.visible { opacity: 1; }
 
+/* ==================== 9.5. Modal Components ==================== */
+
+/* In-game & confirm modal titles */
+#game-wrapper .shop-title,
+#home-confirm-modal .shop-title { font-size: 24px; }
+
+.shop-title--sm { font-size: 24px; }
+
+/* MP badge color */
+.level-badge--mp { color: var(--c-blue); }
+
+/* Level-up subtitle */
+.levelup-subtitle { font-size: 24px; color: #ccc; }
+
+/* Shop coins indicator */
+.shop-coins-badge {
+    background: var(--c-gold);
+    color: #000;
+    margin-bottom: 15px;
+}
+
+/* Shop: My Equipment */
+.shop-my-equipment { flex: 1 1 100%; }
+
+.shop-equipment-heading {
+    background: var(--c-gray-dark);
+    padding: 5px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.shop-equipment-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.shop-equipment-col {
+    flex: 1;
+    min-width: 250px;
+}
+
+.shop-equipment-col h4 {
+    color: var(--c-gold);
+    margin-bottom: 5px;
+}
+
+.equipment-list--compact {
+    max-height: 15vh;
+    overflow-y: auto;
+}
+
+/* Button: gray variant */
+.btn-gray {
+    background: var(--c-text-muted);
+    box-shadow: 0 4px 0 var(--c-gray);
+}
+
+/* Modal close buttons */
+.btn-close-red {
+    margin-top: 20px;
+    background: var(--c-red);
+    box-shadow: 0 4px 0 var(--c-red-dark);
+}
+
+.btn-close-gray {
+    margin-top: 20px;
+    background: var(--c-gray);
+    box-shadow: 0 4px 0 var(--c-gray-dark);
+}
+
+.btn-close-gray--lg { margin-top: 30px; }
+
+/* Larger form/modal buttons */
+.btn-form-submit { padding: 15px; font-size: 18px; }
+
+/* Error messages */
+.error-msg {
+    color: var(--c-red);
+    text-align: center;
+    display: none;
+}
+
+/* Form dividers */
+.form-divider { border-color: #444; margin: 10px 0; }
+.form-divider--lg { margin: 20px 0; }
+
+/* Form hint text */
+.form-hint { font-size: 14px; color: #ccc; text-align: left; }
+.form-hint--mb { margin-bottom: 10px; }
+
+/* Readonly input */
+.input-readonly { background: #444; cursor: not-allowed; }
+
+/* Full-width input */
+.input-full { width: 100%; margin-top: 10px; }
+
+/* Stat heading */
+.stat-heading { text-align: center; margin-bottom: 15px; }
+
+/* Stat action buttons */
+.stat-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    justify-content: center;
+}
+
+/* Adjacent auth switch messages */
+.switch-auth-msg + .switch-auth-msg { margin-top: 8px; }
+
+/* Admin link */
+#admin-link {
+    text-decoration: none;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Game Over */
+.game-over-content { max-width: 450px; text-align: center; }
+.game-over-title { color: var(--c-red); font-size: 40px; text-shadow: 0 0 10px red; }
+.game-over-score { font-size: 24px; margin: 20px 0; }
+.game-over-actions { display: flex; gap: 15px; margin-top: 30px; }
+.btn-modal-action { flex: 1; font-size: 18px; padding: 15px; }
+
+/* Home Confirm overlay */
+#home-confirm-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-content { max-width: 400px; text-align: center; }
+.confirm-msg { margin: 20px 0; font-size: 18px; }
+.confirm-hint { color: var(--c-gold); font-size: 14px; }
+.confirm-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-confirm-action { flex: 1; padding: 12px; font-size: 16px; }
+.btn-confirm-cancel { background: var(--c-text-muted); box-shadow: 0 3px 0 var(--c-gray); }
+
 /* ==================== 10. Responsive ==================== */
 
 /* Tablet (1200px) */
@@ -1251,6 +1461,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         gap: 6px;
         padding: 4px;
     }
+
+    .vs-divider { display: none; }
+    #player-character { animation: none; }
 
     #monster-area {
         width: 100%;
@@ -1345,6 +1558,15 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         border-radius: 14px;
         padding: 20px 16px;
     }
+
+    /* Modal component responsive */
+    .game-over-title { font-size: 32px; }
+    .game-over-score { font-size: 20px; }
+    .game-over-actions { gap: 10px; margin-top: 20px; }
+    .btn-modal-action { font-size: 16px; padding: 12px; }
+    .confirm-msg { font-size: 16px; }
+    .shop-equipment-col { min-width: 200px; }
+    .btn-form-submit { font-size: 16px; padding: 12px; }
 }
 
 /* Small Mobile (480px) */
@@ -1370,6 +1592,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         max-height: 25vh;
         overflow-y: auto;
     }
+
+    .game-over-title { font-size: 28px; }
+    .shop-equipment-col { min-width: 0; }
 }
 
 /* Landscape mobile */
