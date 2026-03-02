@@ -1,10 +1,10 @@
 {
-  "name": "JunsRPG",
-  "short_name": "JunsRPG",
+  "name": "Juns RPG",
+  "short_name": "Juns RPG",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#0a0a14",
+  "theme_color": "#0a0a14",
   "icons": [
     {
       "src": "/assets/icon.png",

@@ -1,6 +1,6 @@
 {
   "appId": "com.junsrpg.app",
-  "appName": "Juns Cave RPG",
+  "appName": "Juns RPG",
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {

@@ -1,7 +1,7 @@
 {
-  "name": "juns-cave-rpg-server",
+  "name": "juns-rpg-server",
   "version": "1.0.0",
-  "description": "Server for Juns Cave RPG",
+  "description": "Server for Juns RPG",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
