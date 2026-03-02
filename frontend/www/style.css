@@ -74,6 +74,12 @@ body {
 #start-menu {
     text-align: center;
     padding: 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 #volume-controls {
@@ -103,37 +109,76 @@ body {
     text-decoration: line-through 3px var(--c-red);
 }
 
+/* Title Area */
+.title-area {
+    margin-bottom: 8px;
+}
+
+.title-icon {
+    font-size: clamp(40px, 10vw, 64px);
+    margin-bottom: 4px;
+    animation: titlePulse 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px var(--c-primary-glow));
+}
+
+@keyframes titlePulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px var(--c-primary-glow)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 20px var(--c-primary-glow)); }
+}
+
 .game-title {
     font-size: clamp(36px, 8vw, 56px);
     font-weight: 900;
     color: var(--c-accent);
     text-shadow: 0 0 20px var(--c-primary-glow), 0 2px 4px rgba(0,0,0,0.5);
-    margin-bottom: 12px;
-    letter-spacing: 4px;
+    margin-bottom: 4px;
+    letter-spacing: 6px;
+}
+
+.game-subtitle {
+    font-size: clamp(13px, 3vw, 16px);
+    color: var(--c-text-dim);
+    font-weight: 400;
+    letter-spacing: 3px;
+    margin-bottom: 0;
+}
+
+.version-tag {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--c-text-muted);
+    letter-spacing: 1px;
 }
 
 #start-menu div {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
 }
 
 .start-btn {
-    padding: 14px 28px;
-    font-size: 16px;
-    width: 240px;
+    padding: 14px 24px;
+    font-size: 15px;
+    width: 260px;
     background: var(--c-surface);
     border: 1px solid var(--c-border-light);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     position: relative;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s, transform 0.1s, border-color 0.2s;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    text-align: left;
 }
 
 .start-btn:active {
     background: var(--c-surface-light);
+    transform: scale(0.97);
+}
+
+.start-btn--primary {
+    background: var(--c-primary-dim);
+    border-color: var(--c-primary);
 }
 
 .new-badge {
@@ -155,9 +200,9 @@ body {
 }
 
 .welcome-msg {
-    font-size: 18px;
+    font-size: 17px;
     color: var(--c-gold);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 500;
 }
 
@@ -183,27 +228,62 @@ body {
     gap: var(--gap);
 }
 
-/* Header (floor, turn, gold, buffs) */
+/* Header (home, floor, turn, gold, buffs) */
 .header {
-    text-align: center;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--c-border);
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-home-btn {
+    background: var(--c-surface-light);
+    border: 1px solid var(--c-border-light);
+    border-radius: var(--radius-sm);
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 6px;
+    flex-shrink: 0;
+    box-shadow: none;
+    transition: background 0.15s;
+}
+
+.header-home-btn:active {
+    background: var(--c-surface-dark);
+}
+
+.header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1;
+    justify-content: center;
 }
 
 .floor-badge {
     background: var(--c-primary);
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: var(--radius-full);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
+    white-space: nowrap;
 }
+
+.badge-gray { background: var(--c-gray); }
+.badge-gold { background: var(--c-gold); color: #000; }
+.badge-red { background: var(--c-red); }
+.badge-purple { background: var(--c-purple); }
+.badge-dark { background: #111; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+.badge-crown { background: #ca8a04; }
 
 /* ==================== 4. Battle Field ==================== */
 .battle-field {
@@ -1146,13 +1226,24 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
     }
 
     .header {
-        gap: 4px;
+        gap: 6px;
         padding-bottom: 6px;
     }
 
+    .header-home-btn {
+        width: 32px;
+        height: 32px;
+        min-height: 32px;
+        font-size: 16px;
+    }
+
+    .header-badges {
+        gap: 4px;
+    }
+
     .floor-badge {
-        font-size: 12px;
-        padding: 4px 10px;
+        font-size: 11px;
+        padding: 3px 8px;
     }
 
     .battle-field {
@@ -1258,8 +1349,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 /* Small Mobile (480px) */
 @media (max-width: 480px) {
-    .game-title { font-size: 32px; letter-spacing: 2px; }
-    .start-btn { width: 200px; font-size: 15px; padding: 12px 20px; }
+    .game-title { font-size: 30px; letter-spacing: 2px; }
+    .game-subtitle { font-size: 12px; letter-spacing: 2px; }
+    .title-icon { font-size: 36px; }
+    .start-btn { width: 220px; font-size: 14px; padding: 12px 20px; }
 
     .emoji { font-size: 44px; }
 
