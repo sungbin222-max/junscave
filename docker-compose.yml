@@ -7,8 +7,9 @@ services:
       context: .
       dockerfile: Dockerfile
     # 컨테이너의 3000번 포트를 호스트의 3000번 포트와 연결합니다.
+    container_name: junscave-app
     ports:
-      - "3000:3000"
+      - "8082:3000"
     # 개발 중 코드 변경 시 자동 재시작을 위해 볼륨을 마운트합니다.
     volumes:
       # Mount the backend code for development hot-reloading
