@@ -3,6 +3,12 @@
 
 const updateHistory = [
     {
+        version: "v2.1.0",
+        date: "2026-03-07",
+        summary: "모바일 UX 대폭 개선 (햅틱, 스와이프, 상점 탭, 성능 최적화)",
+        file: "update/v2.1.0.md"
+    },
+    {
         version: "v2.0.1",
         date: "2026-02-28",
         summary: "무한 모드, 신규 장비 추가 및 밸런스 조정",

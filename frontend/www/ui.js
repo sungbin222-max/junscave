@@ -8,11 +8,10 @@
 //! =================================================================
 
 /*! 서버 API 주소 설정.
- * 현재 페이지의 'origin' (e.g., https://juns.cloud, http://localhost:3000)을
- * 기반으로 API 서버의 기본 주소를 '/api'를 포함하여 설정합니다.
- * 이를 통해 .env 설정에 따라 동적으로 주소가 변경됩니다.
+ * config.js에서 .env 설정 기반으로 API_URL이 이미 설정된 경우 그 값을 유지합니다.
+ * config.js가 로드되지 않은 경우(로컬 개발 등)에만 기본값을 사용합니다.
  */
-window.API_URL = window.location.origin + '/api';
+window.API_URL = window.API_URL || (window.location.origin + '/api');
 
 
 /**
