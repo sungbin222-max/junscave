@@ -254,7 +254,7 @@ function showMainControls() {
         <button class="btn-armor" onclick="openInventoryModal('equipment')">🛡️ 장비</button>
         <button class="btn-inventory" onclick="openInventoryModal('loot')">💎 전리품</button>
         <button class="btn-buff" onclick="openInventoryModal('stats')">📊 스탯</button>
-        <button class="btn-use" style="background-color: #f59e0b; padding: 10px;" onclick="goHomeAndConfirm()">🏠 홈으로</button>
+        <button class="btn-use" style="background-color: #6366f1; padding: 10px;" onclick="fetchAndShowScores()">🏆 랭킹</button>
     `;
 }
 
@@ -1957,44 +1957,8 @@ function renderInventory() {
     }
 }
 
-// === 모바일 스와이프 제스처 ===
+// === 모바일 스와이프 제스처 (몬스터 타겟 변경만) ===
 (function initGestures() {
-    let touchStartY = 0;
-    let touchStartX = 0;
-
-    const modalIds = [
-        'shop-modal', 'equipment-modal', 'item-select-modal',
-        'scoreboard-modal', 'notice-modal'
-    ];
-    const closeMap = {
-        'shop-modal': closeShop,
-        'equipment-modal': closeEquipment,
-        'item-select-modal': closeItemSelect,
-        'scoreboard-modal': closeScoreboardModal,
-        'notice-modal': closeNoticeModal
-    };
-
-    document.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-
-        // 아래로 스와이프 → 모달 닫기
-        if (deltaY > 80 && Math.abs(deltaX) < 50) {
-            for (const id of modalIds) {
-                const modal = document.getElementById(id);
-                if (modal && modal.style.display !== 'none' && modal.style.display !== '') {
-                    closeMap[id]();
-                    break;
-                }
-            }
-        }
-    }, { passive: true });
-
     // 몬스터 타겟 변경 제스처 (좌우 스와이프)
     const monsterArea = document.getElementById('monster-area');
     if (monsterArea) {

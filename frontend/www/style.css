@@ -1552,7 +1552,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
     #edit-profile-form p { font-size: 11px !important; }
     #edit-profile-form button { font-size: 15px !important; }
 
-    /* Modal content full width on mobile */
+    /* Modal content uniform sizing on mobile */
     .login-content,
     .scoreboard-content,
     .notice-content {
@@ -1560,6 +1560,15 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         max-width: none;
         border-radius: 14px;
         padding: 20px 16px;
+        max-height: 85vh;
+        max-height: 85dvh;
+        overflow-y: auto;
+    }
+
+    #scoreboard-list,
+    #notice-list {
+        max-height: 55vh;
+        max-height: 55dvh;
     }
 
     /* Modal component responsive */
