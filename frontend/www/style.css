@@ -498,6 +498,9 @@ body {
     line-height: 1.6;
     border: 1px solid var(--c-border);
     box-shadow: inset 3px 0 0 var(--c-primary-dim);
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
 }
 .log-msg { margin-bottom: 3px; }
 .log-player { color: var(--c-blue); }
@@ -1597,16 +1600,107 @@ button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
     .shop-equipment-col { min-width: 0; }
 }
 
-/* Landscape mobile */
+/* ==================== Shop Tabs ==================== */
+.shop-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 8px;
+    margin-bottom: 8px;
+}
+
+.shop-tab {
+    flex: 1;
+    padding: 8px 4px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface-light);
+    color: var(--c-text-dim);
+    font-size: 13px;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.shop-tab.active {
+    background: var(--c-primary-dim);
+    color: var(--c-text);
+    border-color: var(--c-primary);
+}
+
+.shop-tab-content { display: none; }
+.shop-tab-content.active { display: block; }
+
+/* ==================== Mobile Modal Scroll Fix ==================== */
+@media (max-width: 768px) {
+    #shop-modal {
+        max-height: 100vh;
+        max-height: 100dvh;
+        overflow-y: auto;
+        padding-bottom: max(16px, var(--sab));
+    }
+
+    #shop-modal .shop-container {
+        max-height: 60vh;
+        max-height: 60dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #shop-modal .btn-close-red {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+    }
+
+    #equipment-modal .management-container {
+        max-height: 60dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #item-select-modal .potion-container {
+        max-height: 55dvh;
+        overflow-y: auto;
+    }
+}
+
+/* ==================== Landscape mobile ==================== */
 @media (max-height: 500px) and (orientation: landscape) {
-    .battle-field {
-        flex-direction: row;
-        gap: 20px;
+    .game-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr auto;
+        gap: 4px;
         padding: 4px;
     }
 
-    .emoji { font-size: 48px; }
-    .log-box { height: 50px; }
-    .mp-bar-container, .xp-bar-container { padding: 4px 8px; }
-    .xp-bar-bg { height: 10px; }
+    .header { grid-column: 1 / -1; }
+
+    .battle-field {
+        grid-column: 1;
+        grid-row: 2;
+        flex-direction: row;
+        gap: 10px;
+        padding: 4px;
+    }
+
+    .log-box {
+        grid-column: 2;
+        grid-row: 2;
+        height: auto;
+        max-height: 30vh;
+    }
+
+    .mp-bar-container, .xp-bar-container {
+        grid-column: 1 / -1;
+        padding: 2px 8px;
+    }
+
+    .controls {
+        grid-column: 1 / -1;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .emoji { font-size: 40px; }
+    .xp-bar-bg { height: 8px; }
 }

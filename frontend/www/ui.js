@@ -31,8 +31,31 @@ function log(msg, type = '', styles = {}) {
     box.scrollTop = box.scrollHeight; // 자동 스크롤
 }
 
+// === 플로팅 텍스트 Object Pool (성능 최적화) ===
+const FLOAT_POOL_SIZE = 15;
+const floatingPool = [];
+let floatingPoolInitialized = false;
+
+/**
+ * 플로팅 텍스트 Object Pool 초기화. 게임 시작 시 1회 호출.
+ */
+function initFloatingPool() {
+    if (floatingPoolInitialized) return;
+    const battleField = document.getElementById('battle-field');
+    if (!battleField) return;
+    for (let i = 0; i < FLOAT_POOL_SIZE; i++) {
+        const el = document.createElement('div');
+        el.className = 'floating-text';
+        el.style.display = 'none';
+        battleField.appendChild(el);
+        floatingPool.push({ el, inUse: false, timer: null });
+    }
+    floatingPoolInitialized = true;
+}
+
 /**
  * 캐릭터 위에 떠오르는 텍스트(데미지, MISS 등)를 표시합니다.
+ * Object Pool 패턴으로 DOM 생성/삭제를 최소화합니다.
  * @param {string|number} text - 표시할 텍스트.
  * @param {HTMLElement} targetElement - 텍스트가 표시될 대상 캐릭터의 DOM 요소.
  * @param {string} type - 텍스트 종류에 따른 CSS 클래스 ('damage', 'crit', 'miss', 'heal' 등).
@@ -40,26 +63,58 @@ function log(msg, type = '', styles = {}) {
 function showFloatingText(text, targetElement, type) {
     if (!targetElement) return;
 
-    const textEl = document.createElement('div');
+    // 풀에서 사용 가능한 요소 찾기
+    let poolItem = floatingPool.find(p => !p.inUse);
+    if (!poolItem) {
+        if (floatingPool.length > 0) {
+            // 풀이 가득 차면 가장 오래된 것 재사용
+            poolItem = floatingPool[0];
+            clearTimeout(poolItem.timer);
+        } else {
+            // 풀 미초기화 시 fallback: 직접 생성
+            const battleField = document.getElementById('battle-field');
+            const textEl = document.createElement('div');
+            textEl.className = `floating-text ${type}`;
+            textEl.innerText = text;
+            battleField.appendChild(textEl);
+            const targetRect = targetElement.getBoundingClientRect();
+            const battleFieldRect = battleField.getBoundingClientRect();
+            const x = targetRect.left - battleFieldRect.left + (targetRect.width / 2) - (textEl.offsetWidth / 2) + (Math.random() * 20 - 10);
+            const y = targetRect.top - battleFieldRect.top - 30 + (Math.random() * 10 - 5);
+            textEl.style.left = `${x}px`;
+            textEl.style.top = `${y}px`;
+            setTimeout(() => textEl.remove(), 1200);
+            return;
+        }
+    }
+
+    const textEl = poolItem.el;
+    poolItem.inUse = true;
+
     textEl.className = `floating-text ${type}`;
     textEl.innerText = text;
+    textEl.style.display = '';
 
-    // 전투 필드를 기준으로 위치를 잡음
     const battleField = document.getElementById('battle-field');
-    battleField.appendChild(textEl);
-
     const targetRect = targetElement.getBoundingClientRect();
     const battleFieldRect = battleField.getBoundingClientRect();
 
-    // 텍스트 위치 계산 (캐릭터 중앙 상단에서 약간 랜덤)
-    const x = targetRect.left - battleFieldRect.left + (targetRect.width / 2) - (textEl.offsetWidth / 2) + (Math.random() * 20 - 10);
+    const x = targetRect.left - battleFieldRect.left + (targetRect.width / 2)
+              - (textEl.offsetWidth / 2) + (Math.random() * 20 - 10);
     const y = targetRect.top - battleFieldRect.top - 30 + (Math.random() * 10 - 5);
 
     textEl.style.left = `${x}px`;
     textEl.style.top = `${y}px`;
 
-    // 애니메이션이 끝난 후 요소 제거
-    setTimeout(() => textEl.remove(), 1200); // 애니메이션 시간과 동일하게 설정
+    // CSS 애니메이션 재시작
+    textEl.style.animation = 'none';
+    textEl.offsetHeight; // reflow 트리거
+    textEl.style.animation = '';
+
+    poolItem.timer = setTimeout(() => {
+        textEl.style.display = 'none';
+        poolItem.inUse = false;
+    }, 1200);
 }
 
 /**
@@ -225,6 +280,7 @@ function cancelGoHome() {
  */
 async function executeGoHome() {
     playSound('click');
+    releaseWakeLock();
 
     // 모달 닫기
     document.getElementById('home-confirm-modal').style.display = 'none';
@@ -1314,6 +1370,9 @@ function closeNoticeModal() {
  * @param {number} score - 최종 점수 (도달한 층).
  */
 function showGameOverModal(score) {
+    releaseWakeLock();
+    vibrate([200, 100, 200]);
+    notifyGameOver(score);
     const modal = document.getElementById('game-over-modal');
     document.getElementById('final-score').innerText = score;
     modal.style.display = 'flex';
@@ -1604,20 +1663,15 @@ function openShop(auto = false) {
     const modal = document.getElementById('shop-modal');
     modal.style.display = 'flex';
 
-    // 모바일 환경에서 상점 내용이 잘리는 것을 방지하기 위해
-    // 모달 컨텐츠에 최대 높이와 스크롤을 적용합니다.
-    const modalContent = modal.querySelector('.modal-content');
-    if (modalContent) {
-        modalContent.style.maxHeight = '90vh';
-        modalContent.style.overflowY = 'auto';
-    }
+    // 탭을 물약 탭으로 초기화
+    switchShopTab('potions');
 
     document.getElementById('shop-coins').innerText = player.coins;
 
-    // 전리품 판매 섹션이 없으면 동적으로 생성
-    const shopContainer = modal.querySelector('.shop-container');
+    // 전리품 판매 섹션이 없으면 동적으로 생성 (내 장비 탭 내부에 추가)
+    const myItemsTab = document.getElementById('shop-tab-my-items');
     let sellRow = document.getElementById('sell-loot-row');
-    if (!sellRow) {
+    if (!sellRow && myItemsTab) {
         sellRow = document.createElement('div');
         sellRow.id = 'sell-loot-row';
         sellRow.className = 'shop-row';
@@ -1627,11 +1681,25 @@ function openShop(auto = false) {
                 <div id="sell-loot-items" class="shop-items"></div>
             </div>
         `;
-        shopContainer.appendChild(sellRow);
+        myItemsTab.appendChild(sellRow);
     }
 
     renderShopItems();
     log("떠돌이 상인을 만났습니다.", 'log-system');
+}
+
+/**
+ * 상점 탭을 전환합니다.
+ * @param {string} tabName - 'potions', 'equipment', 'my-items'
+ */
+function switchShopTab(tabName) {
+    playSound('click');
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.shop-tab-content').forEach(c => c.classList.remove('active'));
+    const tab = document.querySelector(`.shop-tab[data-tab="${tabName}"]`);
+    const content = document.getElementById(`shop-tab-${tabName}`);
+    if (tab) tab.classList.add('active');
+    if (content) content.classList.add('active');
 }
 
 /**
@@ -1889,3 +1957,70 @@ function renderInventory() {
         list.innerHTML = '<div class="inventory-item">인벤토리가 비어있습니다.</div>';
     }
 }
+
+// === 모바일 스와이프 제스처 ===
+(function initGestures() {
+    let touchStartY = 0;
+    let touchStartX = 0;
+
+    const modalIds = [
+        'shop-modal', 'equipment-modal', 'item-select-modal',
+        'scoreboard-modal', 'notice-modal'
+    ];
+    const closeMap = {
+        'shop-modal': closeShop,
+        'equipment-modal': closeEquipment,
+        'item-select-modal': closeItemSelect,
+        'scoreboard-modal': closeScoreboardModal,
+        'notice-modal': closeNoticeModal
+    };
+
+    document.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+
+        // 아래로 스와이프 → 모달 닫기
+        if (deltaY > 80 && Math.abs(deltaX) < 50) {
+            for (const id of modalIds) {
+                const modal = document.getElementById(id);
+                if (modal && modal.style.display !== 'none' && modal.style.display !== '') {
+                    closeMap[id]();
+                    break;
+                }
+            }
+        }
+    }, { passive: true });
+
+    // 몬스터 타겟 변경 제스처 (좌우 스와이프)
+    const monsterArea = document.getElementById('monster-area');
+    if (monsterArea) {
+        let mTouchStartX = 0;
+        monsterArea.addEventListener('touchstart', (e) => {
+            mTouchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        monsterArea.addEventListener('touchend', (e) => {
+            const deltaX = e.changedTouches[0].clientX - mTouchStartX;
+            if (Math.abs(deltaX) > 60 && typeof monsters !== 'undefined') {
+                const aliveMonsters = monsters.filter(m => m.hp > 0);
+                if (aliveMonsters.length <= 1) return;
+                const dir = deltaX > 0 ? -1 : 1;
+                let newIndex = player.targetIndex + dir;
+                if (newIndex < 0) newIndex = monsters.length - 1;
+                if (newIndex >= monsters.length) newIndex = 0;
+                let safety = 0;
+                while (monsters[newIndex] && monsters[newIndex].hp <= 0 && safety < monsters.length) {
+                    newIndex = (newIndex + dir + monsters.length) % monsters.length;
+                    safety++;
+                }
+                player.targetIndex = newIndex;
+                if (typeof updateMonsterUI === 'function') updateMonsterUI();
+            }
+        }, { passive: true });
+    }
+})();

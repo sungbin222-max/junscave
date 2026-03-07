@@ -99,6 +99,48 @@ let isAutoBattle = true;
 /** @type {number|null} 스코어보_드 자동 갱신을 위한 인터벌 ID */
 let scoreboardRefreshInterval = null;
 
+// === Wake Lock 관리 (화면 꺼짐 방지) ===
+let wakeLockSentinel = null;
+
+async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLockSentinel = await navigator.wakeLock.request('screen');
+            wakeLockSentinel.addEventListener('release', () => {
+                wakeLockSentinel = null;
+            });
+        } catch (e) {
+            // 배터리 부족 등으로 실패 시 무시
+        }
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLockSentinel) {
+        wakeLockSentinel.release();
+        wakeLockSentinel = null;
+    }
+}
+
+// === 햅틱 피드백 ===
+function vibrate(pattern) {
+    if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+    }
+}
+
+// === 게임 오버 알림 ===
+function notifyGameOver(finalFloor) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        new Notification('Juns RPG', {
+            body: `용사가 B${finalFloor}F에서 쓰러졌습니다!`,
+            icon: 'assets/icon.png',
+            tag: 'game-over'
+        });
+    }
+}
+
 /** @type {number} 스탯 분배 모달에서 임시로 사용할 스탯 포인트 */
 let tempStatPoints = 0;
 /** @type {object} 스탯 분배 모달에서 임시로 사용할 스탯 객체 (힘, 체력, 운 등) */
@@ -225,6 +267,7 @@ function executeNormalAttack() {
     // --- 흑섬(Black Flash) 발동 체크 ---
     if (Math.random() < player.blackFlashChance) {
         playSound('black-flash');
+        vibrate([100, 50, 100]);
         triggerBlackFlash();
         let dmg = Math.floor(player.atk * 6.25);
         log('⚫ 흑섬(黑閃) 발동!', 'log-player', { fontSize: '24px', color: 'white', textShadow: '0 0 5px black, 0 0 15px red' });
@@ -285,6 +328,7 @@ function executeNormalAttack() {
 
         if (isCrit) {
             playSound('crit');
+            vibrate(50);
             dmg = Math.floor(dmg * player.critDamage);
             showFloatingText(dmg, targetMonsterElement, 'crit');
         } else {
@@ -639,6 +683,7 @@ function executePowerAttack() {
     // --- 흑섬(Black Flash) 발동 체크 (강공격 시 3% 고정 확률) ---
     if (Math.random() < 0.03) {
         playSound('black-flash');
+        vibrate([100, 50, 100]);
         triggerBlackFlash();
         let dmg = Math.floor(player.atk * 6.25);
         log('⚫ 흑섬(黑閃) 발동!', 'log-player', { fontSize: '24px', color: 'white', textShadow: '0 0 5px black, 0 0 15px red' });
@@ -990,6 +1035,7 @@ function checkForLevelUp() {
     // 현재 경험치가 필요 경험치보다 많거나 같으면 레벨업
     if (player.xp >= player.xpToNextLevel) {
         playSound('level-up');
+        vibrate(30);
         player.level++;
         player.xp -= player.xpToNextLevel; // 레벨업에 사용된 경험치 차감
         const baseStatPoints = 3;
@@ -1700,6 +1746,11 @@ function startGame(loadedState = null) {
  * @param {number} [restartFloor=1] - 게임을 시작할 층. 환생 시 사용됩니다.
  */
 function startNewGame(isReincarnation = false, restartFloor = 1) {
+    requestWakeLock();
+    initFloatingPool();
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
     if (!isReincarnation) { // 홈 화면에서 '새 게임 시작'을 누른 경우
         let confirmMessage = "정말로 새로운 게임을 시작하시겠습니까?\n이전 아이템, 스탯, 물약 등 모든 진행 상황이 초기화됩니다.";
         if (isLoggedIn()) {
@@ -1939,6 +1990,8 @@ async function saveGame(isSilent = false) {
  * - 저장된 데이터가 없거나 유효하지 않으면 새 게임을 시작합니다.
  */
 async function loadGame() {
+    requestWakeLock();
+    initFloatingPool();
     if (!isLoggedIn()) {
         alert("로그인이 필요합니다.");
         return;
@@ -2268,6 +2321,13 @@ function selectTarget(index) {
         log("쓰러진 몬스터는 선택할 수 없습니다.", 'log-system');
     }
 }
+
+// === 화면 복귀 시 Wake Lock 재획득 ===
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !isGameOver) {
+        requestWakeLock();
+    }
+});
 
 // 게임 시작
 init();

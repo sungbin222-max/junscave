@@ -134,47 +134,62 @@
             <div class="floor-badge shop-coins-badge">🪙 <span
                     id="shop-coins">0</span></div>
 
+            <!-- 탭 네비게이션 -->
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="potions" onclick="switchShopTab('potions')">💊 물약</button>
+                <button class="shop-tab" data-tab="equipment" onclick="switchShopTab('equipment')">🗡️ 장비</button>
+                <button class="shop-tab" data-tab="my-items" onclick="switchShopTab('my-items')">🎒 내 장비</button>
+            </div>
+
             <div class="shop-container">
-                <div class="shop-row">
-                    <div class="shop-section">
-                        <h3>💊 HP 물약</h3>
-                        <div class="shop-items" id="heal-potion-shop-items"></div>
-                    </div>
-                    <div class="shop-section">
-                        <h3>💧 MP 물약</h3>
-                        <div class="shop-items" id="mp-potion-shop-items"></div>
-                    </div>
-                    <div class="shop-section">
-                        <h3>🧪 공격 물약</h3>
-                        <div class="shop-items" id="buff-potion-shop-items"></div>
-                    </div>
-                    <div class="shop-section">
-                        <h3>🔮 집중 물약</h3>
-                        <div class="shop-items" id="crit-potion-shop-items"></div>
-                    </div>
-                </div>
-                <div class="shop-row">
-                    <div class="shop-section">
-                        <h3>🛡️ 방어구 상점</h3>
-                        <div class="shop-items" id="armor-shop-items"></div>
-                    </div>
-                    <div class="shop-section">
-                        <h3>🗡️ 무기 상점</h3>
-                        <div class="shop-items" id="weapon-shop-items"></div>
+                <!-- 물약 탭 -->
+                <div class="shop-tab-content active" id="shop-tab-potions">
+                    <div class="shop-row">
+                        <div class="shop-section">
+                            <h3>💊 HP 물약</h3>
+                            <div class="shop-items" id="heal-potion-shop-items"></div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>💧 MP 물약</h3>
+                            <div class="shop-items" id="mp-potion-shop-items"></div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>🧪 공격 물약</h3>
+                            <div class="shop-items" id="buff-potion-shop-items"></div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>🔮 집중 물약</h3>
+                            <div class="shop-items" id="crit-potion-shop-items"></div>
+                        </div>
                     </div>
                 </div>
-                <!-- 내 장비 관리용 -->
-                <div class="shop-row">
-                    <div class="shop-section shop-my-equipment">
-                        <h3 class="shop-equipment-heading">🎒 내 장비 (착용 및 판매)</h3>
-                        <div class="shop-equipment-grid">
-                            <div class="shop-equipment-col">
-                                <h4>🛡️ 보유 방어구</h4>
-                                <div class="equipment-list equipment-list--compact" id="shop-my-armor-list"></div>
-                            </div>
-                            <div class="shop-equipment-col">
-                                <h4>🗡️ 보유 무기</h4>
-                                <div class="equipment-list equipment-list--compact" id="shop-my-weapon-list"></div>
+                <!-- 장비 탭 -->
+                <div class="shop-tab-content" id="shop-tab-equipment">
+                    <div class="shop-row">
+                        <div class="shop-section">
+                            <h3>🛡️ 방어구 상점</h3>
+                            <div class="shop-items" id="armor-shop-items"></div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>🗡️ 무기 상점</h3>
+                            <div class="shop-items" id="weapon-shop-items"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 내 장비 탭 -->
+                <div class="shop-tab-content" id="shop-tab-my-items">
+                    <div class="shop-row">
+                        <div class="shop-section shop-my-equipment">
+                            <h3 class="shop-equipment-heading">🎒 내 장비 (착용 및 판매)</h3>
+                            <div class="shop-equipment-grid">
+                                <div class="shop-equipment-col">
+                                    <h4>🛡️ 보유 방어구</h4>
+                                    <div class="equipment-list equipment-list--compact" id="shop-my-armor-list"></div>
+                                </div>
+                                <div class="shop-equipment-col">
+                                    <h4>🗡️ 보유 무기</h4>
+                                    <div class="equipment-list equipment-list--compact" id="shop-my-weapon-list"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

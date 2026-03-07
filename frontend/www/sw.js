@@ -1,4 +1,4 @@
-const CACHE_NAME = 'juns-rpg-v2.1';
+const CACHE_NAME = 'juns-rpg-v2.2';
 const STATIC_ASSETS = [
     './',
     './style.css',
